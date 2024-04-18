@@ -59,6 +59,7 @@ class AuthenticationWindow(Window):
         )
 
         connect.grid(row=2, column=1, pady=16, padx=8)
+        print(app.winfo_geometry())
 
     def handle_connection(self):
         if Client.socket != None:
@@ -84,6 +85,71 @@ class AuthenticationWindow(Window):
         self.username.set("")
 
 
+class AddEmploye(Window):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def build(self, app):
+        app.title("Accueil Gerant")
+        frame = customtkinter.CTkFrame(master=app)
+        form_frame = customtkinter.CTkFrame(master=frame)
+        actions_frame = customtkinter.CTkFrame(master=frame)
+
+        customtkinter.CTkLabel(
+            master=frame,
+            text="Entrez les informations du nouvel employé",
+        ).grid(row=0)
+        form_frame.grid(row=1, padx=16, pady=8)
+        actions_frame.grid(row=2, pady=8, padx=8)
+
+        left_grid = customtkinter.CTkFrame(form_frame)
+        left_grid.grid(row=0, column=0)
+        name_frame = customtkinter.CTkFrame(master=left_grid)
+
+        customtkinter.CTkEntry(master=left_grid, placeholder_text="Nom").pack(
+            padx=8, pady=8
+        )
+        roles = ["Receptioniste", "Medicin", "Technicien", "Infermier"]
+        customtkinter.CTkOptionMenu(master=left_grid, values=roles).pack(padx=8, pady=8)
+        customtkinter.CTkEntry(
+            master=left_grid, placeholder_text="Nom d'utilisateur"
+        ).pack(padx=8, pady=8)
+        customtkinter.CTkEntry(master=left_grid, placeholder_text="Mot de passe").pack(
+            padx=8, pady=8
+        )
+        customtkinter.CTkEntry(master=left_grid, placeholder_text="Specialite").pack(
+            padx=8, pady=8
+        )
+        ####
+        right_grid = customtkinter.CTkFrame(form_frame)
+        right_grid.grid(row=0, column=1)
+        customtkinter.CTkEntry(master=right_grid, placeholder_text="Prénom").pack(
+            padx=8, pady=8
+        )
+        customtkinter.CTkEntry(
+            master=right_grid, placeholder_text="Numéro de téléphone"
+        ).pack(padx=8, pady=8)
+
+        customtkinter.CTkEntry(
+            master=right_grid, placeholder_text="Date de naissance (DD / MM / YYYY)"
+        ).pack(padx=8, pady=8)
+        customtkinter.CTkEntry(
+            master=right_grid, placeholder_text="Date d'entrée (DD / MM / YYYY)"
+        ).pack(padx=8, pady=8)
+        customtkinter.CTkEntry(master=right_grid, placeholder_text="Salaire").pack(
+            padx=8, pady=8
+        )
+
+        customtkinter.CTkButton(master=actions_frame, text="Effacer").grid(
+            row=0, column=0, padx=8, pady=8
+        )
+        customtkinter.CTkButton(master=actions_frame, text="Enregistrer").grid(
+            row=0, column=1, padx=8, pady=8
+        )
+
+        frame.grid(row=0, pady=8, padx=8)
+
+
 class Client:
     app: None | CTk = None
     socket: None | skt = None
@@ -96,9 +162,9 @@ class Client:
             Client.app = CTk()
             Client.app.eval("tk::PlaceWindow . center")
 
-        auth = AuthenticationWindow()
+        auth = AddEmploye()
 
-        self.open_new_window(auth)
+        Client.open_new_window(auth)
 
         Client.app.mainloop()
 

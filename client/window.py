@@ -3,6 +3,7 @@ from socket import socket
 from abc import ABC, abstractmethod
 
 
+# 350x + 500
 class Window(ABC):
     def __init__(self) -> None:
         super().__init__()
