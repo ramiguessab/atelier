@@ -4,7 +4,7 @@ from client.window import Window
 
 class NoUserFound(Window):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__("No User")
 
     def build(self, app):
         app.title("Informations Incorrects")
@@ -22,7 +22,7 @@ class NoUserFound(Window):
 
 class AuthenticationInvalid(Window):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__("Invalid Authentication")
 
     def build(self, app):
         app.title("Informations Incorrects")

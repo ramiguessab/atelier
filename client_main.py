@@ -18,7 +18,7 @@ class ClientSocket(Thread):
 
     def run(self):
         while not self.stopped():
-            server_data = self.socket.recv(1024)
+            server_data = self.socket.recv(1024 * 500)
             if server_data:
                 name, json_data = server_data.decode().split("|;")
                 if name == "disconnect":

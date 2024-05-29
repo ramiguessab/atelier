@@ -3,13 +3,14 @@ from event_handler import EventHandler
 from importlib import import_module
 from message import Message
 from thread import Thread
-from server.db.query import Query
 import os
 import json
 
 
 class Server:
     events = dict[str, EventHandler]()
+
+    sockets: list[socket.socket] = []
 
     def __init__(self, host: str, port: int):
         self.host = host
@@ -27,10 +28,11 @@ class Server:
     @Thread.convert_multi_thread
     def handle_connection(self, skt: tuple[socket.socket, str]):
         conn, addr = skt
+        Server.sockets.append(conn)
         with conn:
             print(f"Connected by {addr}")
             while True:
-                client_data = conn.recv(1024)
+                client_data = conn.recv(1024 * 500)
                 if client_data:
                     name, data = client_data.decode().split("|;")
                     if name == "disconnect":

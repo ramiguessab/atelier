@@ -10,7 +10,7 @@ class Message:
 
     def send(self):
         eventName = self.eventName
-        data = json.dumps(self.data)
+        data = json.dumps(self.data, default=str)
         socket = self.socket
         message = f"{eventName}|;{data}"
         socket.sendall(message.encode())

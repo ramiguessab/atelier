@@ -13,16 +13,17 @@ class InServer(EventHandler):
         poste = data["poste"]
         username = data["username"]
         password = data["password"]
+        poste = data["poste"]
 
-        if poste == "Gerant":
-            query = Query(
-                f"""SELECT * FROM gerant WHERE 
+        query = Query(
+            f"""SELECT * FROM utilisateur WHERE 
                         username='{username}'
-                        AND password='{password}'""",
-            )
-            query_result = query.getAll()
+                        AND password='{password}' 
+                        AND poste='{poste}'""",
+        )
+        query_result = query.getAll()
 
-            if len(query_result) >= 1:
-                Message("auth_success", query_result[0], socket).send()
-            else:
-                Message("no_user", {}, socket).send()
+        if len(query_result) >= 1:
+            Message("auth_success", query_result[0], socket).send()
+        else:
+            Message("no_user", {}, socket).send()

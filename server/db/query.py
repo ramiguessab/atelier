@@ -16,9 +16,6 @@ class Query:
     def getAll(self):
         return self.__parse(self.result.fetchall())
 
-    def getOne(self):
-        return self.result.fetchone()
-
     def __parse(self, rows: list[Row]):
         parsed_rows = list()
         if len(rows) > 0:

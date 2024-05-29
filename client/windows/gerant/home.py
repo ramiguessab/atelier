@@ -1,16 +1,14 @@
-from client.dialogs.desconnect_prompt import DesconnectPrompt
 import customtkinter
 from client.ui import Client
 from client.window import Window
-from client.windows.gerant.employe.home import Employe
+from message import Message
 
 
 class GerantHome(Window):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__("Gerant Home")
 
     def build(self, app):
-        app.title("Accueil Gerant")
         app.geometry("800x300")
         frame = customtkinter.CTkFrame(master=app)
 
@@ -19,21 +17,21 @@ class GerantHome(Window):
         customtkinter.CTkButton(
             master=frame, text="Employés", command=self.open_employe_screen
         ).pack(pady=4, padx=16, fill="both")
-        customtkinter.CTkButton(master=frame, text="Comptabilité").pack(
-            pady=4, padx=16, fill="both"
-        )
-        customtkinter.CTkButton(master=frame, text="Types d'analyses").pack(
-            pady=4, padx=16, fill="both"
-        )
-        customtkinter.CTkButton(master=frame, text="Rapports").pack(
-            pady=4, padx=16, fill="both"
-        )
+        customtkinter.CTkButton(
+            master=frame, text="Comptabilité", command=self.open_comptabilite_screen
+        ).pack(pady=4, padx=16, fill="both")
+        customtkinter.CTkButton(
+            master=frame, text="Stock", command=self.open_stock
+        ).pack(pady=4, padx=16, fill="both")
+        customtkinter.CTkButton(
+            master=frame, text="Types d'analyses", command=self.open_analysis_type
+        ).pack(pady=4, padx=16, fill="both")
 
         customtkinter.CTkButton(
             master=frame,
             text="Déconnecter",
-            fg_color="#990000",
-            hover_color="#660000",
+            fg_color="red",
+            hover_color="dark red",
             command=self.deconnecter,
         ).pack(pady=4, padx=16, fill="both")
 
@@ -47,7 +45,20 @@ class GerantHome(Window):
         )
 
     def open_employe_screen(self):
-        Client.open_new_window(Employe())
+        if Client.socket:
+            Message("open_gerant_employees", {}, Client.socket).send()
+
+    def open_comptabilite_screen(self):
+        if Client.socket:
+            Message("open_contabilite_greant", {}, Client.socket).send()
+
+    def open_analysis_type(self):
+        if Client.socket:
+            Message("open_analyse_types", {}, Client.socket).send()
+
+    def open_stock(self):
+        if Client.socket:
+            Message("open_gerant_stock", {}, Client.socket).send()
 
     def deconnecter(self):
-        Client.open_as_dialog(DesconnectPrompt())
+        Client.desconnect()

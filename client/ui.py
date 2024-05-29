@@ -3,18 +3,67 @@ from client.dialogs.authentication_failed import AuthenticationInvalid
 from socket import socket as skt
 from client.window import Window
 import customtkinter
-from thread import Thread
+from PIL import Image
 from message import Message
+
+
+class DesconnectPrompt(Window):
+    def __init__(self) -> None:
+        super().__init__("Desconnect?")
+
+    def build(self, app: CTk | CTkToplevel):
+
+        app.title("Déconnecter?")
+
+        def close():
+            app.destroy()
+
+        top_frame = customtkinter.CTkFrame(master=app)
+
+        bottom_frame = customtkinter.CTkFrame(master=app)
+
+        image = customtkinter.CTkImage(Image.open("icons/mark.png"), size=(64, 64))
+
+        icon = customtkinter.CTkLabel(master=top_frame, text="", image=image)
+        icon.grid(row=0, column=0, padx=16)
+        label = customtkinter.CTkLabel(
+            master=top_frame,
+            text="Êtes-vous sûr de vouloir vous déconnecter de la plateforme ?",
+        )
+
+        label.grid(row=0, column=1, pady=4, padx=8)
+
+        cancel = customtkinter.CTkButton(master=bottom_frame, text="Non", command=close)
+        cancel.grid(row=0, column=0, pady=16, padx=8)
+
+        desconnect = customtkinter.CTkButton(
+            master=bottom_frame,
+            text="Oui",
+            hover_color="#660000",
+            command=self.deconnecter,
+        )
+        desconnect.grid(row=0, column=1, pady=16, padx=8)
+
+        top_frame.pack(pady=8, padx=16)
+        bottom_frame.pack(pady=8, padx=16)
+
+    def deconnecter(self):
+        Client.reset_routing()
+        Client.open_new_window(AuthenticationWindow())
 
 
 class AuthenticationWindow(Window):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__("Authenticate")
 
     def build(self, app):
-        app.title("Authentification")
-        app.geometry("315x310")
-        app.resizable(False, False)
+        tmp_app = app
+        tmp_app.title("Authentification")
+        tmp_app.geometry("330x318")
+        tmp_app.resizable(False, False)
+
+        app = customtkinter.CTkFrame(master=tmp_app)
+        app.pack(padx=8, pady=8)
 
         label = customtkinter.CTkLabel(master=app, text="Vous devez être authentifié")
         label.grid(row=0, pady=8, padx=8, columnspan=2)
@@ -24,7 +73,7 @@ class AuthenticationWindow(Window):
 
         poste_label = customtkinter.CTkLabel(master=form, text="Poste:")
         poste_label.grid(row=0, column=0, pady=16, padx=8)
-        roles = ["Gerant", "Receptioniste", "Medicin", "Technicien"]
+        roles = ["Gerant", "Receptioniste", "Medecin", "Technicien"]
         self.poste = customtkinter.StringVar(value=roles[0])
 
         poste_combo = customtkinter.CTkOptionMenu(
@@ -59,7 +108,6 @@ class AuthenticationWindow(Window):
         )
 
         connect.grid(row=2, column=1, pady=16, padx=8)
-        print(app.winfo_geometry())
 
     def handle_connection(self):
         if Client.socket != None:
@@ -85,74 +133,11 @@ class AuthenticationWindow(Window):
         self.username.set("")
 
 
-class AddEmploye(Window):
-    def __init__(self) -> None:
-        super().__init__()
-
-    def build(self, app):
-        app.title("Accueil Gerant")
-        frame = customtkinter.CTkFrame(master=app)
-        form_frame = customtkinter.CTkFrame(master=frame)
-        actions_frame = customtkinter.CTkFrame(master=frame)
-
-        customtkinter.CTkLabel(
-            master=frame,
-            text="Entrez les informations du nouvel employé",
-        ).grid(row=0)
-        form_frame.grid(row=1, padx=16, pady=8)
-        actions_frame.grid(row=2, pady=8, padx=8)
-
-        left_grid = customtkinter.CTkFrame(form_frame)
-        left_grid.grid(row=0, column=0)
-        name_frame = customtkinter.CTkFrame(master=left_grid)
-
-        customtkinter.CTkEntry(master=left_grid, placeholder_text="Nom").pack(
-            padx=8, pady=8
-        )
-        roles = ["Receptioniste", "Medicin", "Technicien", "Infermier"]
-        customtkinter.CTkOptionMenu(master=left_grid, values=roles).pack(padx=8, pady=8)
-        customtkinter.CTkEntry(
-            master=left_grid, placeholder_text="Nom d'utilisateur"
-        ).pack(padx=8, pady=8)
-        customtkinter.CTkEntry(master=left_grid, placeholder_text="Mot de passe").pack(
-            padx=8, pady=8
-        )
-        customtkinter.CTkEntry(master=left_grid, placeholder_text="Specialite").pack(
-            padx=8, pady=8
-        )
-        ####
-        right_grid = customtkinter.CTkFrame(form_frame)
-        right_grid.grid(row=0, column=1)
-        customtkinter.CTkEntry(master=right_grid, placeholder_text="Prénom").pack(
-            padx=8, pady=8
-        )
-        customtkinter.CTkEntry(
-            master=right_grid, placeholder_text="Numéro de téléphone"
-        ).pack(padx=8, pady=8)
-
-        customtkinter.CTkEntry(
-            master=right_grid, placeholder_text="Date de naissance (DD / MM / YYYY)"
-        ).pack(padx=8, pady=8)
-        customtkinter.CTkEntry(
-            master=right_grid, placeholder_text="Date d'entrée (DD / MM / YYYY)"
-        ).pack(padx=8, pady=8)
-        customtkinter.CTkEntry(master=right_grid, placeholder_text="Salaire").pack(
-            padx=8, pady=8
-        )
-
-        customtkinter.CTkButton(master=actions_frame, text="Effacer").grid(
-            row=0, column=0, padx=8, pady=8
-        )
-        customtkinter.CTkButton(master=actions_frame, text="Enregistrer").grid(
-            row=0, column=1, padx=8, pady=8
-        )
-
-        frame.grid(row=0, pady=8, padx=8)
-
-
 class Client:
     app: None | CTk = None
     socket: None | skt = None
+    role: None | str = None
+    _history: list[Window] = []
 
     def __init__(self, socket: skt) -> None:
         if Client.socket == None:
@@ -162,7 +147,7 @@ class Client:
             Client.app = CTk()
             Client.app.eval("tk::PlaceWindow . center")
 
-        auth = AddEmploye()
+        auth = AuthenticationWindow()
 
         Client.open_new_window(auth)
 
@@ -170,17 +155,47 @@ class Client:
 
     @staticmethod
     def open_new_window(window: Window):
+
         if Client.app != None:
             for widget in Client.app.winfo_children():
                 widget.destroy()
+            if len(Client._history) > 1:
+                title_frame = customtkinter.CTkFrame(master=Client.app)
+                title_frame.pack(pady=16)
+                customtkinter.CTkButton(
+                    text="Retour",
+                    master=title_frame,
+                    command=Client.__return_last_page,
+                    fg_color="green",
+                    hover_color="dark green",
+                ).pack(side=customtkinter.LEFT)
+                customtkinter.CTkLabel(master=Client.app, text=window.title).pack(
+                    anchor=customtkinter.CENTER
+                )
 
             Client.app.resizable(True, True)
+            Client._history.append(window)
 
             window.build(Client.app)
+            Client.app.title(window.title)
+
+    @staticmethod
+    def __return_last_page():
+        Client._history.pop()
+        last_window = Client._history.pop()
+        Client.open_new_window(last_window)
 
     @staticmethod
     def open_as_dialog(window: Window):
         dialog = CTkToplevel(master=Client.app)
-        # dialog.wm_e
-
+        dialog.title(window.title)
         window.build(dialog)
+
+    @staticmethod
+    def reset_routing():
+        Client._history = []
+
+    @staticmethod
+    def desconnect():
+
+        Client.open_as_dialog(DesconnectPrompt())
